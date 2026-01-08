@@ -58,7 +58,7 @@ export default function Settings({ onStart, savedSettings }) {
   // Render Kana reference tables
   if (activeTab === 'hiragana' || activeTab === 'katakana') {
     return (
-      <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col">
+      <div className="min-h-screen bg-[#2a2e30] text-white flex flex-col">
         <div className="flex justify-center gap-2 p-4 border-b border-gray-800">
           {TABS.map((tab) => (
             <button
@@ -83,7 +83,7 @@ export default function Settings({ onStart, savedSettings }) {
 
   // Render Practice settings
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col">
+    <div className="min-h-screen bg-[#2a2e30] text-white flex flex-col">
       <div className="flex justify-center gap-2 p-4 border-b border-gray-800">
         {TABS.map((tab) => (
           <button

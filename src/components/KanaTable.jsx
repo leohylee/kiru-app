@@ -142,7 +142,7 @@ export default function KanaTable({ type }) {
   const currentSubtab = subtabs.find((t) => t.id === activeSubtab) || subtabs[0];
 
   return (
-    <div className="bg-[#1a1a1a] text-white p-4 md:p-6">
+    <div className="bg-[#2a2e30] text-white p-4 md:p-6">
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-bold text-center mb-1">{title}</h2>
         <p

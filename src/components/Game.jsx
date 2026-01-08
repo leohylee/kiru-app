@@ -205,7 +205,7 @@ export default function Game({ settings, onQuit }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col">
+    <div className="min-h-screen bg-[#2a2e30] text-white flex flex-col">
       <div className="flex justify-between items-center p-3 md:p-4 border-b border-gray-800">
         <div className="flex gap-3 md:gap-5 flex-wrap">
           <div>

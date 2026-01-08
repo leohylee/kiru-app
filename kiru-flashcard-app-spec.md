@@ -234,7 +234,7 @@ Multiple romanization systems should be accepted. Store answers as arrays:
 
 ### Theme
 - **Dark mode only**
-- Background: dark gray/black (#1a1a1a or similar)
+- Background: dark gray/black (#2a2e30 or similar)
 - Text: white/light gray
 - Accent colors: 
   - Green for correct (#4ade80 or similar)

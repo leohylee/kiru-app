@@ -15,7 +15,7 @@ export default function Summary({ stats, onPlayAgain, onReset }) {
   const isSpeedrun = mode === 'speedrun';
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-[#2a2e30] text-white flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full">
         <h1 className="text-4xl font-bold text-center mb-2">
           {isSpeedrun ? 'Speedrun Complete' : 'Session Complete'}
