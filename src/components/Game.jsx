@@ -250,7 +250,7 @@ export default function Game({ settings, onQuit }) {
             ref={inputRef}
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Type romaji..."
             autoComplete="off"
             autoCapitalize="off"
