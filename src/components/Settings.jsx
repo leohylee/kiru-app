@@ -107,7 +107,7 @@ export default function Settings({ onStart, savedSettings }) {
             disabled={!canStart}
             className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
               canStart
-                ? 'bg-cyan-400 hover:bg-cyan-500 text-black'
+                ? 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
                 : 'bg-gray-700 text-gray-500 cursor-not-allowed'
             }`}
           >
@@ -118,7 +118,7 @@ export default function Settings({ onStart, savedSettings }) {
             disabled={!canStart}
             className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
               canStart
-                ? 'bg-orange-500 hover:bg-orange-600 text-black'
+                ? 'bg-orange-800/50 hover:bg-orange-700/60 text-orange-100'
                 : 'bg-gray-700 text-gray-500 cursor-not-allowed'
             }`}
           >

@@ -77,10 +77,10 @@ export default function Summary({ stats, onPlayAgain, onReset }) {
         <div className="flex gap-3">
           <button
             onClick={onPlayAgain}
-            className={`flex-1 py-4 rounded-lg font-semibold text-black transition-colors ${
+            className={`flex-1 py-4 rounded-lg font-semibold transition-colors ${
               isSpeedrun
-                ? 'bg-orange-500 hover:bg-orange-600'
-                : 'bg-cyan-400 hover:bg-cyan-500'
+                ? 'bg-orange-800/50 hover:bg-orange-700/60 text-orange-100'
+                : 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
             }`}
           >
             Play Again
