@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getCharacterPool } from '../data/kana';
 
 export default function Game({ settings, onQuit }) {
+  const isSpeedrun = settings.mode === 'speedrun';
   const [characterPool] = useState(() => getCharacterPool(settings.scripts, settings.charSets));
   const [currentCard, setCurrentCard] = useState(null);
   const [input, setInput] = useState('');
@@ -171,8 +172,14 @@ export default function Game({ settings, onQuit }) {
       bestStreak,
       struggledCards,
       duration: Date.now() - startTime,
+      mode: settings.mode,
+      scoreRate: minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0',
     });
   };
+
+  // Cards per minute rate
+  const minutesElapsed = elapsedTime / 60000;
+  const scoreRate = minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0';
 
   const accuracy = totalAttempted > 0 ? Math.round((score / totalAttempted) * 100) : 0;
 
@@ -183,10 +190,6 @@ export default function Game({ settings, onQuit }) {
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  // Cards per minute rate
-  const minutesElapsed = elapsedTime / 60000;
-  const scoreRate = minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0';
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col">
@@ -208,10 +211,12 @@ export default function Game({ settings, onQuit }) {
             <span className="text-gray-400 text-xs md:text-sm">Time</span>
             <div className="text-lg md:text-xl font-bold font-mono">{formatTime(elapsedTime)}</div>
           </div>
-          <div>
-            <span className="text-gray-400 text-xs md:text-sm">Rate</span>
-            <div className="text-lg md:text-xl font-bold">{scoreRate}<span className="text-xs text-gray-500">/min</span></div>
-          </div>
+          {isSpeedrun && (
+            <div>
+              <span className="text-orange-400 text-xs md:text-sm">Rate</span>
+              <div className="text-lg md:text-xl font-bold text-orange-400">{scoreRate}<span className="text-xs text-orange-400/60">/min</span></div>
+            </div>
+          )}
         </div>
         <button
           onClick={handleQuit}
@@ -225,11 +230,11 @@ export default function Game({ settings, onQuit }) {
         <div
           className={`text-[100px] md:text-[120px] font-sans mb-4 transition-all duration-200 ${
             feedback === 'correct'
-              ? 'text-green-400 scale-105'
+              ? 'text-cyan-400 scale-105'
               : feedback === 'wrong'
               ? 'text-red-400'
               : feedback === 'skip'
-              ? 'text-yellow-400'
+              ? 'text-amber-400'
               : ''
           }`}
           style={{ fontFamily: '"Noto Sans JP", sans-serif' }}
@@ -238,7 +243,7 @@ export default function Game({ settings, onQuit }) {
         </div>
 
         {showSkipAnswer && (
-          <div className="text-yellow-400 text-2xl mb-4 animate-pulse">
+          <div className="text-amber-400 text-2xl mb-4 animate-pulse">
             {currentCard?.answers[0]}
           </div>
         )}
@@ -260,7 +265,7 @@ export default function Game({ settings, onQuit }) {
               feedback === 'wrong'
                 ? 'border-red-500 animate-shake'
                 : feedback === 'correct'
-                ? 'border-green-500'
+                ? 'border-cyan-400'
                 : 'border-gray-600 focus:border-gray-400'
             }`}
             style={{ fontSize: '16px' }}
@@ -270,7 +275,7 @@ export default function Game({ settings, onQuit }) {
             type="button"
             onClick={handleSkip}
             disabled={showSkipAnswer}
-            className="w-full mt-4 py-3 md:py-2 text-gray-400 bg-gray-800 active:bg-gray-700 hover:text-yellow-400 hover:bg-gray-700 rounded-lg transition-colors text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-4 py-3 md:py-2 text-gray-400 bg-gray-800 active:bg-gray-700 hover:text-amber-400 hover:bg-gray-700 rounded-lg transition-colors text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Skip<span className="hidden md:inline"> (Tab)</span>
           </button>

@@ -41,9 +41,9 @@ export default function Settings({ onStart, savedSettings }) {
     );
   };
 
-  const handleStart = () => {
+  const handleStart = (mode) => {
     if (canStart) {
-      onStart({ scripts, charSets });
+      onStart({ scripts, charSets, mode });
     }
   };
 
@@ -64,7 +64,7 @@ export default function Settings({ onStart, savedSettings }) {
                 onClick={() => toggleScript(option.id)}
                 className={`flex-1 p-4 rounded-lg border-2 transition-all ${
                   scripts.includes(option.id)
-                    ? 'border-green-500 bg-green-500/10'
+                    ? 'border-cyan-400 bg-cyan-400/10'
                     : 'border-gray-600 hover:border-gray-500'
                 }`}
               >
@@ -89,7 +89,7 @@ export default function Settings({ onStart, savedSettings }) {
                     isDisabled
                       ? 'border-gray-700 opacity-40 cursor-not-allowed'
                       : charSets.includes(option.id)
-                      ? 'border-green-500 bg-green-500/10'
+                      ? 'border-cyan-400 bg-cyan-400/10'
                       : 'border-gray-600 hover:border-gray-500'
                   }`}
                 >
@@ -101,17 +101,30 @@ export default function Settings({ onStart, savedSettings }) {
           </div>
         </div>
 
-        <button
-          onClick={handleStart}
-          disabled={!canStart}
-          className={`w-full py-4 rounded-lg font-semibold text-lg transition-all ${
-            canStart
-              ? 'bg-green-500 hover:bg-green-600 text-black'
-              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          Start Practice
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => handleStart('practice')}
+            disabled={!canStart}
+            className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+              canStart
+                ? 'bg-cyan-400 hover:bg-cyan-500 text-black'
+                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Practice
+          </button>
+          <button
+            onClick={() => handleStart('speedrun')}
+            disabled={!canStart}
+            className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+              canStart
+                ? 'bg-orange-500 hover:bg-orange-600 text-black'
+                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Speedrun
+          </button>
+        </div>
 
         {!canStart && (
           <p className="text-gray-500 text-center text-sm mt-3">

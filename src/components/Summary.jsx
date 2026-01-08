@@ -10,18 +10,30 @@ function formatDuration(ms) {
 }
 
 export default function Summary({ stats, onPlayAgain, onReset }) {
-  const { score, totalAttempted, bestStreak, struggledCards, duration } = stats;
+  const { score, totalAttempted, bestStreak, struggledCards, duration, mode, scoreRate } = stats;
   const accuracy = totalAttempted > 0 ? Math.round((score / totalAttempted) * 100) : 0;
+  const isSpeedrun = mode === 'speedrun';
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full">
-        <h1 className="text-4xl font-bold text-center mb-2">Session Complete</h1>
-        <p className="text-gray-400 text-center mb-10">Great practice!</p>
+        <h1 className="text-4xl font-bold text-center mb-2">
+          {isSpeedrun ? 'Speedrun Complete' : 'Session Complete'}
+        </h1>
+        <p className="text-gray-400 text-center mb-10">
+          {isSpeedrun ? 'Great speed!' : 'Great practice!'}
+        </p>
+
+        {isSpeedrun && (
+          <div className="bg-gray-800 rounded-lg p-6 text-center mb-6">
+            <div className="text-5xl font-bold text-orange-400">{scoreRate}</div>
+            <div className="text-orange-400/70 text-sm mt-1">cards per minute</div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-green-400">{score}</div>
+            <div className={`text-3xl font-bold ${isSpeedrun ? '' : 'text-cyan-400'}`}>{score}</div>
             <div className="text-gray-400 text-sm">Score</div>
           </div>
           <div className="bg-gray-800 rounded-lg p-4 text-center">
@@ -65,7 +77,11 @@ export default function Summary({ stats, onPlayAgain, onReset }) {
         <div className="flex gap-3">
           <button
             onClick={onPlayAgain}
-            className="flex-1 py-4 rounded-lg font-semibold bg-green-500 hover:bg-green-600 text-black transition-colors"
+            className={`flex-1 py-4 rounded-lg font-semibold text-black transition-colors ${
+              isSpeedrun
+                ? 'bg-orange-500 hover:bg-orange-600'
+                : 'bg-cyan-400 hover:bg-cyan-500'
+            }`}
           >
             Play Again
           </button>
