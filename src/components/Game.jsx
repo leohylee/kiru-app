@@ -14,7 +14,9 @@ export default function Game({ settings, onQuit }) {
   const [feedback, setFeedback] = useState(null);
   const [showSkipAnswer, setShowSkipAnswer] = useState(false);
   const [startTime] = useState(Date.now());
+  const [elapsedTime, setElapsedTime] = useState(0);
   const inputRef = useRef(null);
+  const touchStartX = useRef(null);
 
   useEffect(() => {
     nextCard();
@@ -23,6 +25,14 @@ export default function Game({ settings, onQuit }) {
   useEffect(() => {
     inputRef.current?.focus();
   }, [currentCard]);
+
+  // Update timer every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime(Date.now() - startTime);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [startTime]);
 
   const nextCard = () => {
     const randomIndex = Math.floor(Math.random() * characterPool.length);
@@ -77,45 +87,80 @@ export default function Game({ settings, onQuit }) {
     return currentCard.answers.some((a) => a.toLowerCase() === trimmed);
   };
 
+  // Check if input could still potentially match any answer (prefix match)
+  const couldMatchAnswer = (partialInput) => {
+    const trimmed = partialInput.trim().toLowerCase();
+    if (!trimmed) return true;
+    return currentCard.answers.some((a) => a.toLowerCase().startsWith(trimmed));
+  };
+
+  const handleCorrect = () => {
+    setFeedback('correct');
+    setTimeout(() => setFeedback(null), 300);
+
+    if (!attemptedThisCard) {
+      setScore((s) => s + 1);
+      setTotalAttempted((t) => t + 1);
+    }
+
+    const newStreak = currentStreak + 1;
+    setCurrentStreak(newStreak);
+    if (newStreak > bestStreak) {
+      setBestStreak(newStreak);
+    }
+
+    nextCard();
+  };
+
+  const handleWrong = () => {
+    setFeedback('wrong');
+    setTimeout(() => setFeedback(null), 300);
+
+    if (!attemptedThisCard) {
+      setTotalAttempted((t) => t + 1);
+      setAttemptedThisCard(true);
+      setStruggledCards((prev) => {
+        if (!prev.find((c) => c.kana === currentCard.kana)) {
+          return [...prev, currentCard];
+        }
+        return prev;
+      });
+    }
+
+    setCurrentStreak(0);
+    setInput('');
+  };
+
+  // Auto-check for kana: wrong as soon as input doesn't match any prefix
+  const handleInputChange = (e) => {
+    const newInput = e.target.value;
+    if (!currentCard || showSkipAnswer) return;
+
+    setInput(newInput);
+
+    if (!newInput.trim()) return;
+
+    // Check if it's an exact match (correct answer)
+    if (checkAnswer(newInput)) {
+      handleCorrect();
+      return;
+    }
+
+    // Check if input could still match (is a valid prefix)
+    if (!couldMatchAnswer(newInput)) {
+      handleWrong();
+    }
+  };
+
+  // Keep Enter submit for future language flashcards
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim() || !currentCard) return;
 
-    const isCorrect = checkAnswer(input);
-
-    if (isCorrect) {
-      setFeedback('correct');
-      setTimeout(() => setFeedback(null), 300);
-
-      if (!attemptedThisCard) {
-        setScore((s) => s + 1);
-        setTotalAttempted((t) => t + 1);
-      }
-
-      const newStreak = currentStreak + 1;
-      setCurrentStreak(newStreak);
-      if (newStreak > bestStreak) {
-        setBestStreak(newStreak);
-      }
-
-      nextCard();
+    if (checkAnswer(input)) {
+      handleCorrect();
     } else {
-      setFeedback('wrong');
-      setTimeout(() => setFeedback(null), 300);
-
-      if (!attemptedThisCard) {
-        setTotalAttempted((t) => t + 1);
-        setAttemptedThisCard(true);
-        setStruggledCards((prev) => {
-          if (!prev.find((c) => c.kana === currentCard.kana)) {
-            return [...prev, currentCard];
-          }
-          return prev;
-        });
-      }
-
-      setCurrentStreak(0);
-      setInput('');
+      handleWrong();
     }
   };
 
@@ -131,10 +176,22 @@ export default function Game({ settings, onQuit }) {
 
   const accuracy = totalAttempted > 0 ? Math.round((score / totalAttempted) * 100) : 0;
 
+  // Format elapsed time as MM:SS
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Cards per minute rate
+  const minutesElapsed = elapsedTime / 60000;
+  const scoreRate = minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0';
+
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col">
       <div className="flex justify-between items-center p-3 md:p-4 border-b border-gray-800">
-        <div className="flex gap-4 md:gap-6">
+        <div className="flex gap-3 md:gap-5 flex-wrap">
           <div>
             <span className="text-gray-400 text-xs md:text-sm">Score</span>
             <div className="text-lg md:text-xl font-bold">{score}</div>
@@ -146,6 +203,14 @@ export default function Game({ settings, onQuit }) {
           <div>
             <span className="text-gray-400 text-xs md:text-sm">Streak</span>
             <div className="text-lg md:text-xl font-bold">{currentStreak}</div>
+          </div>
+          <div>
+            <span className="text-gray-400 text-xs md:text-sm">Time</span>
+            <div className="text-lg md:text-xl font-bold font-mono">{formatTime(elapsedTime)}</div>
+          </div>
+          <div>
+            <span className="text-gray-400 text-xs md:text-sm">Rate</span>
+            <div className="text-lg md:text-xl font-bold">{scoreRate}<span className="text-xs text-gray-500">/min</span></div>
           </div>
         </div>
         <button
