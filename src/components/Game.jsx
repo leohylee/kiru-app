@@ -36,8 +36,21 @@ export default function Game({ settings, onQuit }) {
   }, [startTime]);
 
   const nextCard = () => {
-    const randomIndex = Math.floor(Math.random() * characterPool.length);
-    setCurrentCard(characterPool[randomIndex]);
+    let randomIndex;
+    let nextCardCandidate;
+
+    // Avoid showing the same card twice in a row (if pool has more than 1 card)
+    if (characterPool.length > 1) {
+      do {
+        randomIndex = Math.floor(Math.random() * characterPool.length);
+        nextCardCandidate = characterPool[randomIndex];
+      } while (currentCard && nextCardCandidate.kana === currentCard.kana);
+    } else {
+      randomIndex = 0;
+      nextCardCandidate = characterPool[0];
+    }
+
+    setCurrentCard(nextCardCandidate);
     setAttemptedThisCard(false);
     setShowSkipAnswer(false);
     setInput('');
