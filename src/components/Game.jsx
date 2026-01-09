@@ -19,6 +19,7 @@ export default function Game({ settings, onQuit }) {
   const [startTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const inputRef = useRef(null);
+  const cardRef = useRef(null);
   const touchStartX = useRef(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Game({ settings, onQuit }) {
   }, []);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    inputRef.current?.focus({ preventScroll: true });
   }, [currentCard]);
 
   // Update timer every second
@@ -227,12 +228,6 @@ export default function Game({ settings, onQuit }) {
       {/* Desktop header - hidden on mobile */}
       <div className="hidden md:flex justify-between items-center p-4 border-b border-gray-800">
         <div className="flex gap-5 flex-wrap">
-          {isSpeedrun && targetCards && (
-            <div>
-              <span className="text-orange-400 text-sm">Progress</span>
-              <div className="text-xl font-bold text-orange-400">{cardsCompleted}<span className="text-orange-400/60">/{targetCards}</span></div>
-            </div>
-          )}
           <div>
             <span className="text-gray-400 text-sm">Score</span>
             <div className="text-xl font-bold">{score}</div>
@@ -260,14 +255,6 @@ export default function Game({ settings, onQuit }) {
 
       {/* Main game area */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6">
-        {/* Mobile: Progress on top for speedrun mode */}
-        {isSpeedrun && targetCards && (
-          <div className="text-center mb-4 md:hidden">
-            <span className="text-orange-400 text-xs">Progress</span>
-            <div className="text-lg font-bold text-orange-400">{cardsCompleted}<span className="text-orange-400/60">/{targetCards}</span></div>
-          </div>
-        )}
-
         {/* Mobile: Stats and Card on same row */}
         <div className="flex items-center justify-between w-full md:block px-4">
           {/* Left stats - Score & Accuracy (mobile only) */}
@@ -283,19 +270,24 @@ export default function Game({ settings, onQuit }) {
           </div>
 
           {/* Card */}
-          <div
-            className={`text-[min(80px,15vw)] md:text-[120px] font-sans transition-all duration-200 text-center ${
-              feedback === 'correct'
-                ? 'text-cyan-400 scale-105'
-                : feedback === 'wrong'
-                ? 'text-red-400'
-                : feedback === 'skip'
-                ? 'text-amber-400'
-                : ''
-            }`}
-            style={{ fontFamily: '"Noto Sans JP", sans-serif' }}
-          >
-            {currentCard?.kana}
+          <div className="flex flex-col items-center">
+            <div
+              className={`text-[min(80px,15vw)] md:text-[120px] font-sans transition-all duration-200 text-center ${
+                feedback === 'correct'
+                  ? 'text-cyan-400 scale-105'
+                  : feedback === 'wrong'
+                  ? 'text-red-400'
+                  : feedback === 'skip'
+                  ? 'text-amber-400'
+                  : ''
+              }`}
+              style={{ fontFamily: '"Noto Sans JP", sans-serif' }}
+            >
+              {currentCard?.kana}
+            </div>
+            {isSpeedrun && targetCards && (
+              <div className="text-orange-400/50 text-xs mt-1">{cardsCompleted}/{targetCards}</div>
+            )}
           </div>
 
           {/* Right stats - Streak & Time (mobile only) */}
@@ -311,13 +303,13 @@ export default function Game({ settings, onQuit }) {
           </div>
         </div>
 
-        {showSkipAnswer && (
-          <div className="text-amber-400 text-2xl mb-4 animate-pulse">
-            {currentCard?.answers[0]}
-          </div>
-        )}
-
-        {!showSkipAnswer && <div className="h-10 mb-4" />}
+        <div ref={cardRef} className="h-10 mb-4 flex items-center justify-center">
+          {showSkipAnswer && (
+            <span className="text-amber-400 text-2xl animate-pulse">
+              {currentCard?.answers[0]}
+            </span>
+          )}
+        </div>
 
         {/* Input and buttons */}
         <form onSubmit={handleSubmit} className="w-full max-w-xs">
@@ -326,6 +318,22 @@ export default function Game({ settings, onQuit }) {
             type="text"
             value={input}
             onChange={handleInputChange}
+            onFocus={() => {
+              // On mobile, scroll the card into view after keyboard opens
+              if (window.visualViewport) {
+                const onResize = () => {
+                  window.visualViewport.removeEventListener('resize', onResize);
+                  setTimeout(() => {
+                    cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }, 50);
+                };
+                window.visualViewport.addEventListener('resize', onResize);
+                // Clean up if no resize happens within 1s
+                setTimeout(() => {
+                  window.visualViewport.removeEventListener('resize', onResize);
+                }, 1000);
+              }
+            }}
             placeholder="Type romaji..."
             autoComplete="off"
             autoCapitalize="off"
