@@ -10,24 +10,21 @@ function formatDuration(ms) {
 }
 
 export default function Summary({ stats, onPlayAgain, onReset }) {
-  const { score, totalAttempted, bestStreak, struggledCards, duration, mode, scoreRate } = stats;
+  const { score, totalAttempted, bestStreak, struggledCards, duration, mode } = stats;
   const accuracy = totalAttempted > 0 ? Math.round((score / totalAttempted) * 100) : 0;
   const isSpeedrun = mode === 'speedrun';
 
   return (
     <div className="min-h-screen bg-[#2a2e30] text-white flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full">
-        <h1 className="text-4xl font-bold text-center mb-2">
-          {isSpeedrun ? 'Speedrun Complete' : 'Session Complete'}
+        <h1 className="text-4xl font-bold text-center mb-10">
+          {isSpeedrun ? 'Speedrun Complete!' : 'Session Complete'}
         </h1>
-        <p className="text-gray-400 text-center mb-10">
-          {isSpeedrun ? 'Great speed!' : 'Great practice!'}
-        </p>
 
         {isSpeedrun && (
           <div className="bg-gray-800 rounded-lg p-6 text-center mb-6">
-            <div className="text-5xl font-bold text-orange-400">{scoreRate}</div>
-            <div className="text-orange-400/70 text-sm mt-1">cards per minute</div>
+            <div className="text-5xl font-bold text-orange-400 font-mono">{formatDuration(duration)}</div>
+            <div className="text-orange-400/70 text-sm mt-1">time</div>
           </div>
         )}
 
@@ -50,7 +47,7 @@ export default function Summary({ stats, onPlayAgain, onReset }) {
           </div>
         </div>
 
-        {duration && (
+        {duration && !isSpeedrun && (
           <div className="text-center text-gray-400 mb-8">
             Session duration: {formatDuration(duration)}
           </div>

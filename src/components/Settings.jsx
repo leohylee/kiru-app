@@ -19,10 +19,13 @@ const CHARSET_OPTIONS = [
   { id: 'extended', label: 'Extended', description: 'Foreign loanwords (Katakana only)', katakanaOnly: true },
 ];
 
+const SPEEDRUN_CARD_OPTIONS = [10, 25, 50, 100];
+
 export default function Settings({ onStart, savedSettings }) {
   const [activeTab, setActiveTab] = useState('practice');
   const [scripts, setScripts] = useState(savedSettings?.scripts || []);
   const [charSets, setCharSets] = useState(savedSettings?.charSets || []);
+  const [showSpeedrunOptions, setShowSpeedrunOptions] = useState(false);
 
   const hasKatakana = scripts.includes('katakana');
   const canStart = scripts.length > 0 && charSets.length > 0;
@@ -49,9 +52,9 @@ export default function Settings({ onStart, savedSettings }) {
     );
   };
 
-  const handleStart = (mode) => {
+  const handleStart = (mode, targetCards = null) => {
     if (canStart) {
-      onStart({ scripts, charSets, mode });
+      onStart({ scripts, charSets, mode, targetCards });
     }
   };
 
@@ -153,35 +156,60 @@ export default function Settings({ onStart, savedSettings }) {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => handleStart('practice')}
-              disabled={!canStart}
-              className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
-                canStart
-                  ? 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
-                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              Practice
-            </button>
-            <button
-              onClick={() => handleStart('speedrun')}
-              disabled={!canStart}
-              className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
-                canStart
-                  ? 'bg-orange-800/50 hover:bg-orange-700/60 text-orange-100'
-                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              Speedrun
-            </button>
-          </div>
+          {!showSpeedrunOptions ? (
+            <>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleStart('practice')}
+                  disabled={!canStart}
+                  className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+                    canStart
+                      ? 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
+                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  Practice
+                </button>
+                <button
+                  onClick={() => canStart && setShowSpeedrunOptions(true)}
+                  disabled={!canStart}
+                  className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+                    canStart
+                      ? 'bg-orange-800/50 hover:bg-orange-700/60 text-orange-100'
+                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  Speedrun
+                </button>
+              </div>
 
-          {!canStart && (
-            <p className="text-gray-500 text-center text-sm mt-3">
-              Select at least one script and one character set
-            </p>
+              {!canStart && (
+                <p className="text-gray-500 text-center text-sm mt-3">
+                  Select at least one script and one character set
+                </p>
+              )}
+            </>
+          ) : (
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-gray-300">Number of Cards</h2>
+              <div className="grid grid-cols-4 gap-3 mb-4">
+                {SPEEDRUN_CARD_OPTIONS.map((count) => (
+                  <button
+                    key={count}
+                    onClick={() => handleStart('speedrun', count)}
+                    className="py-4 rounded-lg font-semibold text-lg transition-all bg-orange-800/50 hover:bg-orange-700/60 text-orange-100"
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowSpeedrunOptions(false)}
+                className="w-full py-3 rounded-lg font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              >
+                Back
+              </button>
+            </div>
           )}
         </div>
       </div>

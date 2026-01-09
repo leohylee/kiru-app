@@ -3,7 +3,9 @@ import { getCharacterPool } from '../data/kana';
 
 export default function Game({ settings, onQuit }) {
   const isSpeedrun = settings.mode === 'speedrun';
+  const targetCards = settings.targetCards;
   const [characterPool] = useState(() => getCharacterPool(settings.scripts, settings.charSets));
+  const [cardsCompleted, setCardsCompleted] = useState(0);
   const [currentCard, setCurrentCard] = useState(null);
   const [input, setInput] = useState('');
   const [score, setScore] = useState(0);
@@ -123,6 +125,25 @@ export default function Game({ settings, onQuit }) {
       setBestStreak(newStreak);
     }
 
+    const newCardsCompleted = cardsCompleted + 1;
+    setCardsCompleted(newCardsCompleted);
+
+    // Auto-end speedrun when target reached
+    if (isSpeedrun && targetCards && newCardsCompleted >= targetCards) {
+      setTimeout(() => {
+        onQuit({
+          score: score + (attemptedThisCard ? 0 : 1),
+          totalAttempted: totalAttempted + (attemptedThisCard ? 0 : 1),
+          bestStreak: Math.max(bestStreak, newStreak),
+          struggledCards,
+          duration: Date.now() - startTime,
+          mode: settings.mode,
+          targetCards,
+        });
+      }, 300);
+      return;
+    }
+
     nextCard();
   };
 
@@ -186,13 +207,10 @@ export default function Game({ settings, onQuit }) {
       struggledCards,
       duration: Date.now() - startTime,
       mode: settings.mode,
-      scoreRate: minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0',
+      targetCards,
+      cardsCompleted,
     });
   };
-
-  // Cards per minute rate
-  const minutesElapsed = elapsedTime / 60000;
-  const scoreRate = minutesElapsed > 0 ? (score / minutesElapsed).toFixed(1) : '0.0';
 
   const accuracy = totalAttempted > 0 ? Math.round((score / totalAttempted) * 100) : 0;
 
@@ -209,6 +227,12 @@ export default function Game({ settings, onQuit }) {
       {/* Desktop header - hidden on mobile */}
       <div className="hidden md:flex justify-between items-center p-4 border-b border-gray-800">
         <div className="flex gap-5 flex-wrap">
+          {isSpeedrun && targetCards && (
+            <div>
+              <span className="text-orange-400 text-sm">Progress</span>
+              <div className="text-xl font-bold text-orange-400">{cardsCompleted}<span className="text-orange-400/60">/{targetCards}</span></div>
+            </div>
+          )}
           <div>
             <span className="text-gray-400 text-sm">Score</span>
             <div className="text-xl font-bold">{score}</div>
@@ -225,12 +249,6 @@ export default function Game({ settings, onQuit }) {
             <span className="text-gray-400 text-sm">Time</span>
             <div className="text-xl font-bold font-mono">{formatTime(elapsedTime)}</div>
           </div>
-          {isSpeedrun && (
-            <div>
-              <span className="text-orange-400 text-sm">Rate</span>
-              <div className="text-xl font-bold text-orange-400">{scoreRate}<span className="text-xs text-orange-400/60">/min</span></div>
-            </div>
-          )}
         </div>
         <button
           onClick={handleQuit}
@@ -242,6 +260,14 @@ export default function Game({ settings, onQuit }) {
 
       {/* Main game area */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6">
+        {/* Mobile: Progress on top for speedrun mode */}
+        {isSpeedrun && targetCards && (
+          <div className="text-center mb-4 md:hidden">
+            <span className="text-orange-400 text-xs">Progress</span>
+            <div className="text-lg font-bold text-orange-400">{cardsCompleted}<span className="text-orange-400/60">/{targetCards}</span></div>
+          </div>
+        )}
+
         {/* Mobile: Stats and Card on same row */}
         <div className="flex items-center justify-between w-full md:block px-4">
           {/* Left stats - Score & Accuracy (mobile only) */}
@@ -282,12 +308,6 @@ export default function Game({ settings, onQuit }) {
               <span className="text-gray-400 text-xs">Time</span>
               <div className="text-lg font-bold font-mono">{formatTime(elapsedTime)}</div>
             </div>
-            {isSpeedrun && (
-              <div className="text-center">
-                <span className="text-orange-400 text-xs">Rate</span>
-                <div className="text-lg font-bold text-orange-400">{scoreRate}<span className="text-xs text-orange-400/60">/m</span></div>
-              </div>
-            )}
           </div>
         </div>
 
