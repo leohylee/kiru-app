@@ -153,17 +153,30 @@ export default function Settings({ onStart, savedSettings }) {
             </div>
           </div>
 
-          <button
-            onClick={() => handleStart('practice')}
-            disabled={!canStart}
-            className={`w-full py-4 rounded-lg font-semibold text-lg transition-all ${
-              canStart
-                ? 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
-                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Practice
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleStart('practice')}
+              disabled={!canStart}
+              className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+                canStart
+                  ? 'bg-cyan-800/50 hover:bg-cyan-700/60 text-cyan-100'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Practice
+            </button>
+            <button
+              onClick={() => handleStart('speedrun')}
+              disabled={!canStart}
+              className={`flex-1 py-4 rounded-lg font-semibold text-lg transition-all ${
+                canStart
+                  ? 'bg-orange-800/50 hover:bg-orange-700/60 text-orange-100'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Speedrun
+            </button>
+          </div>
 
           {!canStart && (
             <p className="text-gray-500 text-center text-sm mt-3">
